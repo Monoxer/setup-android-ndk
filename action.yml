@@ -1,0 +1,22 @@
+name: 'Setup Android NDK'
+description: 'Download and cache Android NDK'
+inputs:
+  version:
+    description: 'NDK version'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+        sudo mkdir -p /usr/local/lib/android/sdk/ndk
+        sudo chmod -R 777 /usr/local/lib/android/sdk/ndk
+        sudo chown -R $USER:$USER /usr/local/lib/android/sdk/ndk
+      shell: bash
+    - id: 'ndk-cache'
+      uses: 'actions/cache@v3'
+      with:
+        path: '/usr/local/lib/android/sdk/ndk'
+        key: 'ndk-cache-${{ inputs.version }}-v3'
+    - run: 'echo y | sudo /usr/local/lib/android/sdk/tools/bin/sdkmanager --install "ndk;${{ inputs.version }}" --sdk_root=${ANDROID_SDK_ROOT}'
+      if: steps.ndk-cache.outputs.cache-hit != 'true'
+      shell: bash
